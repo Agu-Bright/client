@@ -11,6 +11,10 @@ const PORT = process.env.PORT || 8080;
 const detail = require("./model/number");
 const fsExtra = require("fs-extra");
 const path = require("path");
+const User = require("./model/user");
+const cookieParser = require("cookie-parser");
+const sendToken = require("./utils/token");
+const bcrypt = require("bcryptjs");
 
 app.use(
   cors({
@@ -18,6 +22,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(cookieParser());
 app.use(fileUpload());
 
 const fetchNumberDetails = async (number) => {
@@ -38,8 +43,53 @@ const fetchNumberDetails = async (number) => {
   }
 };
 
-//fetch a uniquie number detail
+//login user
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log(req.body);
+    if (!email || !password) {
+      res.status(400).json({ msg: "please provide your credentials" });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404).json({ msg: "User Not found" });
+    }
+    console.log(user);
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!isPasswordCorrect) {
+      return res.json({ msg: "Invalid credentials" });
+    }
+    sendToken(user, 200, res);
+  } catch (error) {
+    res.status(500).json({ success: false, msg: error.message });
+  }
+});
 
+app.get("/api/logout", async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Logged Out",
+  });
+});
+
+app.post("/api/register", async (req, res) => {
+  const { email, password } = req.body;
+  console.log(req.body);
+  const mainPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({
+    email: email,
+    password: mainPassword,
+  });
+  sendToken(user, 200, res);
+});
+
+//fetch a uniquie number detail
 app.post("/api/upload", async (req, res) => {
   try {
     //get the numberArray
@@ -72,10 +122,27 @@ app.post("/api/upload", async (req, res) => {
   }
 });
 
+//get all the details => /api/getdetails?lineType=mobile
 app.get("/api/getdetails", async (req, res) => {
   try {
-    const data = await detail.find();
+    let data;
+    if (req.query.lineType) {
+      data = await detail.find({ line_type: req.query.lineType });
+    } else {
+      data = await detail.find();
+    }
+
     fsExtra.emptyDirSync("./files");
+    res.status(200).json({ data });
+  } catch (err) {
+    res.status(500).json({ success: false, msg: err.message });
+  }
+});
+
+app.post("api/getdetails/type", async (req, res) => {
+  try {
+    const lineType = req.body;
+    const data = await detail.find({ line_type: lineType });
     res.status(200).json({ data });
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });

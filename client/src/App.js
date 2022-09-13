@@ -10,6 +10,7 @@ import {
   Alert,
   List,
   ListItem,
+  Divider,
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import FileUpload from "./components/fileUpload";
@@ -19,9 +20,10 @@ const App = () => {
   const [isSubmit, setIsSubmit] = useState("UPLOAD");
   const [clear, setClear] = useState(false);
   const dispatch = useDispatch();
-  const { loading, details } = useSelector((state) => state.details);
+  const { loading, details, error } = useSelector((state) => state.details);
   const [file, setFile] = useState();
   const [fileName, setFileName] = useState("Choose File");
+  const [lineType, setLineType] = useState("");
 
   const handleClearDatabase = async () => {
     await axios.delete("/api/delete");
@@ -29,8 +31,11 @@ const App = () => {
   };
 
   useEffect(() => {
-    dispatch(getDetails());
-  }, [dispatch, state, isSubmit, clear]);
+    if (error) {
+      alert("There was an error");
+    }
+    dispatch(getDetails(lineType));
+  }, [dispatch, state, isSubmit, clear, lineType]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -56,21 +61,21 @@ const App = () => {
     <Stack spacing={3} sx={{ margin: "2px" }}>
       <Alert severity="warning">
         <List>
-          <ListItem disablePadding>
-            <Typography>Ensure that the file input is a csv file</Typography>
+          <ListItem>
+            <Typography># Ensure that the file input is a csv file</Typography>
           </ListItem>
-          <ListItem disablePadding>
+          <ListItem>
             <Typography>
-              Click the get details button or refresh the page if there is no
+              # Click the get details button or refresh the page if there is no
               ressult after upload
             </Typography>
           </ListItem>
-          <ListItem disablePadding>
-            <Typography>Clear the database after each upload</Typography>
+          <ListItem>
+            <Typography># Clear the database after each upload</Typography>
           </ListItem>
-          <ListItem disablePadding>
+          <ListItem>
             <Typography>
-              The first item from the csv file is always skipped
+              # The first item from the csv file is always skipped
             </Typography>
           </ListItem>
         </List>
@@ -92,6 +97,19 @@ const App = () => {
             setIsSubmit={setIsSubmit}
           />
         </Paper>
+
+        <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Button variant="contained" onClick={() => setLineType("mobile")}>
+            Mobile
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => setLineType("landline")}
+          >
+            Landline
+          </Button>
+        </Stack>
       </Stack>
       {loading ? (
         <CircularProgress />
@@ -99,20 +117,38 @@ const App = () => {
         details?.map((info) => (
           <Stack
             key={info._id}
-            sx={{ border: "1px solid black", margin: "10px" }}
+            sx={{
+              margin: "10px",
+              padding: "8px",
+              borderRadius: "5px",
+              backgroundColor: "skyblue",
+            }}
           >
             <Typography>valid : {info.valid}</Typography>
+            <Divider />
             <Typography>Number : {info.number}</Typography>
+            <Divider />
             <Typography>Local Format : {info.local_format}</Typography>
+            <Divider />
             <Typography>
               International Format : {info.international_format}
             </Typography>
+            <Divider />
             <Typography>Country Prefix : {info.country_prefix}</Typography>
+            <Divider />
             <Typography>Country Code : {info.country_code}</Typography>
+            <Divider />
             <Typography>Country Name : {info.country_name}</Typography>
+            <Divider />
             <Typography>Country location : {info.location}</Typography>
+            <Divider />
             <Typography>Carrier : {info.carrier}</Typography>
+            <Divider />
             <Typography>Line Type : {info.line_type}</Typography>
+            {/* <Stack direction="row" spacing={2}>
+              <Button>mobile</Button>
+              <Button>land Line</Button>
+            </Stack> */}
           </Stack>
         ))
       )}

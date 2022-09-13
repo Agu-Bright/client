@@ -9,10 +9,13 @@ import axios from "axios";
 
 //get all number details
 
-export const getDetails = () => async (dispatch) => {
+export const getDetails = (lineType) => async (dispatch) => {
   try {
     dispatch({ type: ALL_NUMBER_REQUEST });
-    const data = await axios.get("/api/getdetails");
+    let link = lineType
+      ? `/api/getdetails?lineType=${lineType}`
+      : `/api/getdetails`;
+    const data = await axios.get(link);
     dispatch({ type: ALL_NUMBER_SUCCESS, payload: data.data.data });
   } catch (error) {
     dispatch({
