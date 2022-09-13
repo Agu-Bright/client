@@ -47,7 +47,6 @@ const fetchNumberDetails = async (number) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(req.body);
     if (!email || !password) {
       res.status(400).json({ msg: "please provide your credentials" });
     }
@@ -55,10 +54,9 @@ app.post("/api/login", async (req, res) => {
     if (!user) {
       res.status(404).json({ msg: "User Not found" });
     }
-    console.log(user);
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
-      return res.json({ msg: "Invalid credentials" });
+      return res.status(400).json({ msg: "Invalid credentials" });
     }
     sendToken(user, 200, res);
   } catch (error) {

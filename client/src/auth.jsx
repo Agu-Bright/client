@@ -13,16 +13,16 @@ const initialFormState = {
 
 function Auth() {
   const dispatch = useDispatch();
-  const { user, error } = useSelector((state) => state.user);
+  const { error } = useSelector((state) => state.user);
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const navigate = useNavigate();
   useEffect(() => {
-    if (error || !user) {
+    if (error) {
       navigate("/");
     }
-  }, [error, navigate, user]);
+  }, [error, navigate]);
   const handleShowPassword = () => {
     setShowPassword((prev) => !prev);
   };
