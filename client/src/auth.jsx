@@ -1,11 +1,4 @@
-import {
-  Avatar,
-  Paper,
-  Typography,
-  Button,
-  Stack,
-  CircularProgress,
-} from "@mui/material";
+import { Paper, Typography, Button, Stack } from "@mui/material";
 import { Container } from "@mui/system";
 // import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import React, { useState, useEffect } from "react";
@@ -20,7 +13,7 @@ const initialFormState = {
 
 function Auth() {
   const dispatch = useDispatch();
-  const { loading, user, error } = useSelector((state) => state.user);
+  const { user, error } = useSelector((state) => state.user);
 
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState(initialFormState);

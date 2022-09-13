@@ -35,7 +35,7 @@ const App = () => {
       alert("There was an error");
     }
     dispatch(getDetails(lineType));
-  }, [dispatch, state, isSubmit, clear, lineType]);
+  }, [dispatch, state, isSubmit, clear, lineType, error]);
 
   const onSubmit = async (e) => {
     e.preventDefault();
