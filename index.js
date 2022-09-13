@@ -48,11 +48,11 @@ app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      res.status(400).json({ msg: "please provide your credentials" });
+      return res.status(400).json({ msg: "please provide your credentials" });
     }
     const user = await User.findOne({ email });
     if (!user) {
-      res.status(404).json({ msg: "User Not found" });
+      return res.status(404).json({ msg: "User Not found" });
     }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
