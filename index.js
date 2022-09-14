@@ -3,6 +3,7 @@ const express = require("express");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const fs = require("fs");
+const { writeFile, readFile } = require("fs/promises");
 const { parse } = require("csv-parse");
 const axios = require("axios");
 const db = require("./db/connect");
@@ -15,6 +16,7 @@ const User = require("./model/user");
 const cookieParser = require("cookie-parser");
 const sendToken = require("./utils/token");
 const bcrypt = require("bcryptjs");
+const { log } = require("console");
 
 app.use(
   cors({
@@ -126,21 +128,16 @@ app.get("/api/getdetails", async (req, res) => {
     let data;
     if (req.query.lineType) {
       data = await detail.find({ line_type: req.query.lineType });
+      const mainData = JSON.stringify(data);
+      await writeFile("./download/main.json", mainData, "utf-8");
+      let readStream;
+      fs.createReadStream("./download/main.json").on("data", (row) =>
+        console.log(row);
+      );
     } else {
       data = await detail.find();
     }
 
-    fsExtra.emptyDirSync("./files");
-    res.status(200).json({ data });
-  } catch (err) {
-    res.status(500).json({ success: false, msg: err.message });
-  }
-});
-
-app.post("api/getdetails/type", async (req, res) => {
-  try {
-    const lineType = req.body;
-    const data = await detail.find({ line_type: lineType });
     res.status(200).json({ data });
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
@@ -150,7 +147,8 @@ app.post("api/getdetails/type", async (req, res) => {
 app.delete("/api/delete", async (req, res) => {
   try {
     await detail.deleteMany();
-    console.log("products are deleted");
+    fsExtra.emptyDirSync("./files");
+    fsExtra.emptyDirSync("./download");
     res.status(200).json({ success: true, msg: "database cleares" });
   } catch (error) {
     res.status(500).json({ success: false, msg: err.message });
