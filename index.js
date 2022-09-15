@@ -158,7 +158,6 @@ app.delete("/api/delete", async (req, res) => {
   try {
     await detail.deleteMany();
     fsExtra.emptyDirSync("./files");
-    fsExtra.emptyDirSync("./download");
     res.status(200).json({ success: true, msg: "database cleares" });
   } catch (error) {
     res.status(500).json({ success: false, msg: err.message });
