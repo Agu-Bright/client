@@ -15,6 +15,7 @@ import {
 } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import FileUpload from "./components/fileUpload";
+import fileDownload from "js-file-download";
 
 const App = () => {
   const [state, setState] = useState("Get Details");
@@ -54,6 +55,28 @@ const App = () => {
   const onChange = (e) => {
     setFile(e.target.files[0]);
     setFileName(e.target.files[0].name);
+  };
+
+  const handleDownloadMobile = (e) => {
+    e.preventDefault();
+    axios({
+      url: "/api/download/mobile",
+      method: "GET",
+      responseType: "blob",
+    }).then((res) => {
+      fileDownload(res.data, "mobile.csv");
+    });
+  };
+
+  const handleDownloadLandline = (e) => {
+    e.preventDefault();
+    axios({
+      url: "/api/download/landline",
+      method: "GET",
+      responseType: "blob",
+    }).then((res) => {
+      fileDownload(res.data, "landline.csv");
+    });
   };
 
   return (
@@ -104,16 +127,42 @@ const App = () => {
             </Paper>
 
             <Stack direction="row" spacing={2} justifyContent="space-between">
-              <Button variant="contained" onClick={() => setLineType("mobile")}>
-                Mobile
-              </Button>
-              <Button
-                variant="contained"
-                color="secondary"
-                onClick={() => setLineType("landline")}
-              >
-                Landline
-              </Button>
+              <Stack direction="column" spacing={2}>
+                <Button
+                  variant="contained"
+                  onClick={() => {
+                    setLineType("mobile");
+                  }}
+                >
+                  Mobile
+                </Button>
+
+                {lineType && (
+                  <Button
+                    variant="contained"
+                    onClick={(e) => handleDownloadMobile(e)}
+                  >
+                    Download mobile
+                  </Button>
+                )}
+              </Stack>
+              <Stack direction="column" spacing={2}>
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => setLineType("landline")}
+                >
+                  Landline
+                </Button>
+                {lineType && (
+                  <Button
+                    variant="contained"
+                    onClick={(e) => handleDownloadLandline(e)}
+                  >
+                    Download landline
+                  </Button>
+                )}
+              </Stack>
             </Stack>
           </Stack>
           {loading ? (

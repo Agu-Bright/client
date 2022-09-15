@@ -128,20 +128,30 @@ app.get("/api/getdetails", async (req, res) => {
     let data;
     if (req.query.lineType) {
       data = await detail.find({ line_type: req.query.lineType });
-      const mainData = JSON.stringify(data);
-      await writeFile("./download/main.json", mainData, "utf-8");
-      let readStream;
-      fs.createReadStream("./download/main.json").on("data", (row) =>
-        console.log(row);
+      const [...main] = data?.map((item) => item.number);
+      const mainData = JSON.stringify(main);
+      await writeFile(
+        `./download/${req.query.lineType}.csv`,
+        mainData,
+        "utf-8"
       );
+      return res.status(200).json({ data });
     } else {
       data = await detail.find();
+      return res.status(200).json({ data });
     }
-
-    res.status(200).json({ data });
   } catch (err) {
     res.status(500).json({ success: false, msg: err.message });
   }
+});
+
+//download
+app.get("/api/download/mobile", (req, res) => {
+  res.download("./download/mobile.csv");
+});
+
+app.get("/api/download/landline", (req, res) => {
+  res.download("./download/landline.csv");
 });
 
 app.delete("/api/delete", async (req, res) => {
