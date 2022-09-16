@@ -128,13 +128,16 @@ app.get("/api/getdetails", async (req, res) => {
     let data;
     if (req.query.lineType) {
       data = await detail.find({ line_type: req.query.lineType });
-      const [...main] = data?.map((item) => item.number);
-      const mainData = JSON.stringify(main);
-      await writeFile(
-        `./download/${req.query.lineType}.csv`,
-        mainData,
-        "utf-8"
-      );
+      const main = data?.map((item) => item.number);
+      const log = fs.createWriteStream(`./download/${req.query.lineType}.csv`);
+      for (var i = 0; i < main.length; i++) {
+        log.write(main[i] + "\n");
+      }
+      // await writeFile(
+      //   `./download/${req.query.lineType}.csv`,
+      //   mainData,
+      //   "utf-8" _5((+&66)((+_5-:&4$$
+      // );
       return res.status(200).json({ data });
     } else {
       data = await detail.find();
