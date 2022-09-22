@@ -129,9 +129,11 @@ app.get("/api/getdetails", async (req, res) => {
     if (req.query.lineType) {
       data = await detail.find({ line_type: req.query.lineType });
       const main = data?.map((item) => {
-        let itemArray = item.split(",");
-        if (itemArray.index(0) === 1) {
+        let itemArray = item.number.toString().split("");
+        if (itemArray.indexOf(0) === "1") {
           return item.number - 10000000000;
+        } else {
+          return item.number;
         }
         return item.number;
       });
