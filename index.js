@@ -16,7 +16,6 @@ const User = require("./model/user");
 const cookieParser = require("cookie-parser");
 const sendToken = require("./utils/token");
 const bcrypt = require("bcryptjs");
-const { log } = require("console");
 
 app.use(
   cors({
@@ -130,12 +129,12 @@ app.get("/api/getdetails", async (req, res) => {
       data = await detail.find({ line_type: req.query.lineType });
       const main = data?.map((item) => {
         let itemArray = item.number.toString().split("");
-        if (itemArray.indexOf(0) === "1") {
+
+        if (itemArray[0] === "1") {
           return item.number - 10000000000;
         } else {
           return item.number;
         }
-        return item.number;
       });
       const log = fs.createWriteStream(`./download/${req.query.lineType}.csv`);
       for (var i = 0; i < main.length; i++) {
